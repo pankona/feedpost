@@ -20,8 +20,13 @@ OLD=old.txt
 NEW=new.txt
 while :
 do
-    mv $NEW $OLD
-    feedfetch > $NEW
-    diff $OLD $NEW | grep \> | cut -b 3- | zulippost
-    sleep 10m
+    TMP=$(mktemp)
+    feedfetch > $TMP
+    if [ $? = 0 ]; then
+        mv $NEW $OLD
+        mv $TMP $NEW
+        diff $OLD $NEW | grep \> | cut -b 3- | zulippost
+    fi
+    rm $TMP
+    sleep 5m
 done
